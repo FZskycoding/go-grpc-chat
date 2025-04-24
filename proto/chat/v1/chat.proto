@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package chat.v1;
+
+option go_package = "github.com/FZskycoding/GoChatRPC/proto/chat/v1;chatpb";
+
+// 基本的聊天訊息結構
+message Message {
+  string id = 1;                    // 訊息唯一識別碼
+  string sender = 2;                // 發送者ID
+  string content = 3;               // 訊息內容
+  int64 timestamp = 4;              // 發送時間戳（Unix timestamp）
+}
+
+// 發送訊息請求
+message SendMessageRequest {
+  string receiver = 1;              // 接收者ID
+  string content = 2;               // 訊息內容
+}
+
+// 發送訊息回應
+message SendMessageResponse {
+  Message message = 1;              // 已發送的訊息
+  bool success = 2;                 // 發送是否成功
+}
+
+// 聊天服務定義
+service ChatService {
+  // 發送訊息（Unary RPC）
+  // 這是最基本的一對一訊息發送功能
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
+
+  // 接收訊息（Server Streaming RPC）
+  // 用於即時接收其他用戶發送的訊息
+  rpc ReceiveMessages(ReceiveRequest) returns (stream Message) {}
+}
+
+// 接收訊息請求
+message ReceiveRequest {
+  string user_id = 1;    // 接收訊息的用戶ID
+}

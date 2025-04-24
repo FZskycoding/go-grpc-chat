@@ -1,0 +1,25 @@
+# Go 編譯產物
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go 特定檔案
+/vendor/
+/bin/
+/pkg/
+
+# IDE 相關（VS Code）
+.vscode/
+*.code-workspace
+.idea/
+
+# 作業系統檔案
+.DS_Store
+Thumbs.db
+
+# 專案特定
+# gRPC 生成的檔案已經納入版控，所以不需要忽略
