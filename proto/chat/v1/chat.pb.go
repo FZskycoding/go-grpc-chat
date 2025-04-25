@@ -261,7 +261,7 @@ const file_proto_chat_v1_chat_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId2\x9b\x01\n" +
 	"\vChatService\x12J\n" +
 	"\vSendMessage\x12\x1b.chat.v1.SendMessageRequest\x1a\x1c.chat.v1.SendMessageResponse\"\x00\x12@\n" +
-	"\x0fReceiveMessages\x12\x17.chat.v1.ReceiveRequest\x1a\x10.chat.v1.Message\"\x000\x01B7Z5github.com/FZskycoding/GoChatRPC/proto/chat/v1;chatpbb\x06proto3"
+	"\x0fReceiveMessages\x12\x17.chat.v1.ReceiveRequest\x1a\x10.chat.v1.Message\"\x000\x01B Z\x1eGoChatRPC/proto/chat/v1;chatpbb\x06proto3"
 
 var (
 	file_proto_chat_v1_chat_proto_rawDescOnce sync.Once

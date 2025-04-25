@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package chat.v1;
 
-option go_package = "github.com/FZskycoding/GoChatRPC/proto/chat/v1;chatpb";
+option go_package = "GoChatRPC/proto/chat/v1;chatpb";
 
 // 基本的聊天訊息結構
 message Message {

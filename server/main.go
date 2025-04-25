@@ -21,6 +21,7 @@ func main() {
 
 	// 註冊聊天服務
 	chatServer := service.NewChatServer()
+	
 	pb.RegisterChatServiceServer(grpcServer, chatServer)
 
 	// 啟動服務器
