@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ChatService_SendMessage_FullMethodName     = "/chat.v1.ChatService/SendMessage"
 	ChatService_ReceiveMessages_FullMethodName = "/chat.v1.ChatService/ReceiveMessages"
+	ChatService_ChatStream_FullMethodName      = "/chat.v1.ChatService/ChatStream"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -35,6 +36,9 @@ type ChatServiceClient interface {
 	// 接收訊息（Server Streaming RPC）
 	// 用於即時接收其他用戶發送的訊息
 	ReceiveMessages(ctx context.Context, in *ReceiveRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error)
+	// 雙向串流聊天（Bidirectional Streaming RPC）
+	// 用於即時雙向通訊
+	ChatStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ChatMessage, ChatMessage], error)
 }
 
 type chatServiceClient struct {
@@ -74,6 +78,19 @@ func (c *chatServiceClient) ReceiveMessages(ctx context.Context, in *ReceiveRequ
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ChatService_ReceiveMessagesClient = grpc.ServerStreamingClient[Message]
 
+func (c *chatServiceClient) ChatStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ChatMessage, ChatMessage], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ChatService_ServiceDesc.Streams[1], ChatService_ChatStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ChatMessage, ChatMessage]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ChatService_ChatStreamClient = grpc.BidiStreamingClient[ChatMessage, ChatMessage]
+
 // ChatServiceServer is the server API for ChatService service.
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility.
@@ -86,6 +103,9 @@ type ChatServiceServer interface {
 	// 接收訊息（Server Streaming RPC）
 	// 用於即時接收其他用戶發送的訊息
 	ReceiveMessages(*ReceiveRequest, grpc.ServerStreamingServer[Message]) error
+	// 雙向串流聊天（Bidirectional Streaming RPC）
+	// 用於即時雙向通訊
+	ChatStream(grpc.BidiStreamingServer[ChatMessage, ChatMessage]) error
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -101,6 +121,9 @@ func (UnimplementedChatServiceServer) SendMessage(context.Context, *SendMessageR
 }
 func (UnimplementedChatServiceServer) ReceiveMessages(*ReceiveRequest, grpc.ServerStreamingServer[Message]) error {
 	return status.Errorf(codes.Unimplemented, "method ReceiveMessages not implemented")
+}
+func (UnimplementedChatServiceServer) ChatStream(grpc.BidiStreamingServer[ChatMessage, ChatMessage]) error {
+	return status.Errorf(codes.Unimplemented, "method ChatStream not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 func (UnimplementedChatServiceServer) testEmbeddedByValue()                     {}
@@ -152,6 +175,13 @@ func _ChatService_ReceiveMessages_Handler(srv interface{}, stream grpc.ServerStr
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ChatService_ReceiveMessagesServer = grpc.ServerStreamingServer[Message]
 
+func _ChatService_ChatStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ChatServiceServer).ChatStream(&grpc.GenericServerStream[ChatMessage, ChatMessage]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ChatService_ChatStreamServer = grpc.BidiStreamingServer[ChatMessage, ChatMessage]
+
 // ChatService_ServiceDesc is the grpc.ServiceDesc for ChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -169,6 +199,12 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "ReceiveMessages",
 			Handler:       _ChatService_ReceiveMessages_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "ChatStream",
+			Handler:       _ChatService_ChatStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "proto/chat/v1/chat.proto",

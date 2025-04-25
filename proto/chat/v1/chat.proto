@@ -24,6 +24,18 @@ message SendMessageResponse {
   bool success = 2;                 // 發送是否成功
 }
 
+// 連接請求
+message ConnectRequest {
+  string user_id = 1;    // 用戶ID
+}
+
+// 聊天訊息
+message ChatMessage {
+  string user_id = 1;    // 發送者ID
+  string content = 2;    // 訊息內容
+  int64 timestamp = 3;   // 發送時間戳
+}
+
 // 聊天服務定義
 service ChatService {
   // 發送訊息（Unary RPC）
@@ -33,6 +45,10 @@ service ChatService {
   // 接收訊息（Server Streaming RPC）
   // 用於即時接收其他用戶發送的訊息
   rpc ReceiveMessages(ReceiveRequest) returns (stream Message) {}
+
+  // 雙向串流聊天（Bidirectional Streaming RPC）
+  // 用於即時雙向通訊
+  rpc ChatStream(stream ChatMessage) returns (stream ChatMessage) {}
 }
 
 // 接收訊息請求
